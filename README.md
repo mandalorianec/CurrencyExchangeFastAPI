@@ -28,3 +28,29 @@ DB_SCALE=6
 # Макс. количество цифр
 DB_INTEGER_DIGITS=15
 ```
+
+### Linux (Ubuntu)
+1. Установите Docker в систему
+2. Перейдите в  /CurrencyExchangeFastAPI
+    ```shell
+    cd CurrencyExchangeFastAPI
+    ```
+3. Создайте .env файл в папке backend:
+    ```properties
+    POSTGRES_USER=пользователь бд postgres
+    POSTGRES_PASSWORD=123123
+    POSTGRES_DB=currency_exchange_db
+    HOST_DB=localhost
+    PORT_DB=5432
+    
+    REDIS_HOST=localhost
+    # Макс. количество запросов в REDIS_SECONDS
+    REDIS_TIMES=50
+    REDIS_SECONDS=86400
+    
+    # Макс. количество цифр после запятой
+    DB_SCALE=6
+    # Макс. количество цифр
+    DB_INTEGER_DIGITS=15
+    ```
+4. Пропишите 
