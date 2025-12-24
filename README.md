@@ -34,6 +34,7 @@ DB_INTEGER_DIGITS=15
 2. Перейдите в  /CurrencyExchangeFastAPI
     ```shell
     cd CurrencyExchangeFastAPI
+   git pull https://github.com/mandalorianec/CurrencyExchangeFastAPI.git
     ```
 3. Создайте .env файл в папке backend:
     ```properties
@@ -43,7 +44,7 @@ DB_INTEGER_DIGITS=15
     HOST_DB=localhost
     PORT_DB=5432
     
-    REDIS_HOST=localhost
+    REDIS_HOST=redis
     # Макс. количество запросов в REDIS_SECONDS
     REDIS_TIMES=50
     REDIS_SECONDS=86400
@@ -53,4 +54,4 @@ DB_INTEGER_DIGITS=15
     # Макс. количество цифр
     DB_INTEGER_DIGITS=15
     ```
-4. Пропишите 
+4. Пропишите docker compose up --build
