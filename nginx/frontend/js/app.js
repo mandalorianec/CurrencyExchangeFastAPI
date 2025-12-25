@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const host = "http://localhost:8000"
+    const host = "http://localhost:80"
 
     // Fetch the list of currencies and populate the select element
     function requestCurrencies() {
@@ -19,7 +19,9 @@ $(document).ready(function() {
 
                     if (isForbidden) {
                         row.css('color', 'red');
-                    }                    row.append($('<td></td>').text(currency.name));
+                    }
+                    row.append($('<td></td>').text(currency.code))
+                    row.append($('<td></td>').text(currency.name));
                     row.append($('<td></td>').text(currency.sign));
                     tbody.append(row);
                 });
