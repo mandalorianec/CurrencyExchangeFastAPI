@@ -25,7 +25,7 @@ REST API для описания валют и обменных курсов. П
 
 ## Деплой на Linux(Ubuntu)
 
-1. Установите Docker в систему
+1. Установите Docker и docker compose в систему
 2. Перейдите в /CurrencyExchangeFastAPI
     ```sh
    git clone https://github.com/mandalorianec/CurrencyExchangeFastAPI.git

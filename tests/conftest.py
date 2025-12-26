@@ -4,7 +4,7 @@ from fastapi import Response, Request
 from httpx import AsyncClient, ASGITransport
 from app.service.currency_service import CurrencyService
 from app.schemas import CurrencyResponse
-from app.main import app
+from main import app
 import pytest
 
 CURRENCIES = [
