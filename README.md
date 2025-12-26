@@ -57,6 +57,9 @@ REST API для описания валют и обменных курсов. П
    
    ufw allow from 172.17.0.0/16
    ```
-5. Пропишите docker compose up --build
+5. Пропишите: 
+   ```shell
+   docker compose up --build -d
+   ```
 6. Приложение доступно по IP вашего VPS.
 7. Документация (Swagger) доступна по http://ip/docs
