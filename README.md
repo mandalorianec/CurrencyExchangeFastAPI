@@ -31,7 +31,7 @@ REST API для описания валют и обменных курсов. П
    git clone https://github.com/mandalorianec/CurrencyExchangeFastAPI.git
    cd CurrencyExchangeFastAPI
     ```
-3. Создайте .env файл в папке backend:
+3. Создайте .env файл рядом с Dockerfile:
     ```env
     POSTGRES_USER=postgres
     POSTGRES_PASSWORD=123123
