@@ -1,13 +1,13 @@
 from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
 
 from app.database import get_session
 from app.exceptions import CurrencyNotFoundError
-from app.schemas import CurrencySchema
 from app.models.currency import Currency
+from app.schemas import CurrencySchema
 
 
 class CurrencyRepository:
@@ -20,7 +20,9 @@ class CurrencyRepository:
         return result
 
     async def get_currency_by(self, code: str):
-        currency = await self.session.execute(select(Currency).filter(Currency.code == code))
+        currency = await self.session.execute(
+            select(Currency).filter(Currency.code == code)
+        )
         result = currency.scalars().first()
         if result is None:
             raise CurrencyNotFoundError

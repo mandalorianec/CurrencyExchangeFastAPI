@@ -1,15 +1,21 @@
+import logging
+
 import uvicorn
-from app.exception_handler import validation_exception_handler, http_exception_handler, ownexception_handler
-from app.exceptions import BaseOwnException
-from app.lifespan import lifespan
-from app.routers.exchange import exchange_router
-from app.routers.exchangerate import exchange_rate_router
-from app.routers.currency import currency_router
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-import logging
+from fastapi.responses import RedirectResponse
+
+from app.exception_handler import (
+    http_exception_handler,
+    ownexception_handler,
+    validation_exception_handler,
+)
+from app.exceptions import BaseOwnException
+from app.lifespan import lifespan
+from app.routers.currency import currency_router
+from app.routers.exchange import exchange_router
+from app.routers.exchangerate import exchange_rate_router
 
 logger = logging.getLogger(__name__)
 
@@ -47,5 +53,5 @@ async def root():
     return RedirectResponse(url="/docs")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,7 +1,7 @@
 import os
 from typing import Annotated
 
-from pydantic import computed_field, Field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

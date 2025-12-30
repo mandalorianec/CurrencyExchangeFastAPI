@@ -1,8 +1,8 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy import Integer
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.config import settings
-from sqlalchemy import Integer
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 
 engine = create_async_engine(settings.database_url)
 
@@ -15,4 +15,6 @@ async def get_session():
 
 
 class Base(DeclarativeBase):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)  # pk автоматически индексируется
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )  # pk автоматически индексируется

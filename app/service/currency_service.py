@@ -1,8 +1,8 @@
 import logging
 from typing import Annotated
-from sqlalchemy.exc import IntegrityError
 
 from fastapi import Depends
+from sqlalchemy.exc import IntegrityError
 
 from app.exceptions import CurrencyAlreadyExistsError
 from app.repositories.currency_repository import CurrencyRepository
@@ -26,9 +26,9 @@ class CurrencyService:
         await self.rep.add_currency(currency)
         try:
             await self.rep.session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             logger.error("Не удалось добавить валюту из-за проблем с БД")
             await self.rep.session.rollback()
-            raise CurrencyAlreadyExistsError
+            raise CurrencyAlreadyExistsError from e
         created_currency = await self.rep.get_currency_by(currency.code)
         return created_currency

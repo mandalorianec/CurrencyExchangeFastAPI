@@ -5,9 +5,9 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
 from app.config import settings
 from app.database import Base
-from alembic import context
 from app.models.currency import Currency
 from app.models.exchangerate import ExchangeRate
 
@@ -19,7 +19,6 @@ if config.config_file_name is not None:
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
 target_metadata = Base.metadata
-
 
 
 def run_migrations_offline() -> None:

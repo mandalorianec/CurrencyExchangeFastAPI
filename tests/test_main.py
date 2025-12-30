@@ -1,5 +1,5 @@
-from httpx import AsyncClient
 import pytest
+from httpx import AsyncClient
 
 
 @pytest.mark.anyio
@@ -19,6 +19,6 @@ async def test_post_currencies_missing_field(ac: AsyncClient):
 @pytest.mark.anyio
 async def test_post_currency(ac: AsyncClient, override_currency_service):
     form_data = {"name": "Russian Ruble", "code": "RUB", "sign": "R"}
-    response = await ac.post("/currencies", data=form_data )
+    response = await ac.post("/currencies", data=form_data)
     assert response.status_code == 201
     assert response.json()["code"] == "RUB"

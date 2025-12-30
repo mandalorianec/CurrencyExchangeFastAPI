@@ -1,15 +1,17 @@
 from unittest.mock import AsyncMock
-from fastapi_limiter.depends import RateLimiter
-from fastapi import Response, Request
-from httpx import AsyncClient, ASGITransport
-from app.service.currency_service import CurrencyService
-from app.schemas import CurrencyResponse
-from main import app
+
 import pytest
+from fastapi import Request, Response
+from fastapi_limiter.depends import RateLimiter
+from httpx import ASGITransport, AsyncClient
+
+from app.schemas import CurrencyResponse
+from app.service.currency_service import CurrencyService
+from main import app
 
 CURRENCIES = [
     CurrencyResponse(id=1, name="US Dollar", code="USD", sign="$"),
-    CurrencyResponse(id=2, name="Euro", code="EUR", sign="E")
+    CurrencyResponse(id=2, name="Euro", code="EUR", sign="E"),
 ]
 
 
@@ -19,7 +21,9 @@ def override_currency_service():
 
     # подменяем возвращаемые значения
     mock_service.get_all_currencies.return_value = CURRENCIES
-    mock_service.add_currency.return_value = CurrencyResponse(id=3, name="Russian Ruble", code="RUB", sign="R")
+    mock_service.add_currency.return_value = CurrencyResponse(
+        id=3, name="Russian Ruble", code="RUB", sign="R"
+    )
 
     app.dependency_overrides[CurrencyService] = lambda: mock_service
     yield mock_service
@@ -28,7 +32,7 @@ def override_currency_service():
 
 @pytest.fixture
 def anyio_backend():
-    return 'asyncio'
+    return "asyncio"
 
 
 @pytest.fixture(autouse=True)
@@ -41,5 +45,7 @@ def disable_rate_limiter(monkeypatch):
 
 @pytest.fixture
 async def ac():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url='http://test') as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
