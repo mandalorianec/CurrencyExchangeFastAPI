@@ -10,6 +10,7 @@ REST API для описания валют и обменных курсов. П
 совершать расчёт конвертации произвольных сумм из одной валюты в другую.
 
 ## Мотивация проекта
+
 - REST API - правильное именование ресурсов, использование HTTP кодов ответа
 - Применение новых технологий на практике
 
@@ -61,9 +62,60 @@ REST API для описания валют и обменных курсов. П
    
    ufw allow from 172.17.0.0/16
    ```
-5. Пропишите: 
+5. Пропишите:
    ```shell
    docker compose up --build -d
    ```
 6. Приложение доступно по IP вашего VPS.
 7. Документация (Swagger) доступна по http://ip/docs
+
+## Локальный деплой (для разработки)
+
+1. Установите Docker и docker compose в систему
+2. Перейдите в /CurrencyExchangeFastAPI
+    ```sh
+   git clone https://github.com/mandalorianec/CurrencyExchangeFastAPI.git
+   cd CurrencyExchangeFastAPI
+    ```
+3. Создайте .env файл рядом с Dockerfile:
+    ```env
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=123123
+    POSTGRES_DB=currency_exchange_db
+    HOST_DB=localhost
+    PORT_DB=5432
+    
+    REDIS_HOST=localhost
+    # Макс. количество запросов в REDIS_SECONDS
+    REDIS_TIMES=50
+    REDIS_SECONDS=86400
+    
+    # Макс. количество цифр после запятой
+    DB_SCALE=6
+    # Макс. количество цифр
+    DB_INTEGER_DIGITS=15
+    ```
+4. Запустите redis:
+    ```commandline
+    docker run --name my-redis -p 6379:6379 --env-file .env -d redis
+    ```
+5. Запустите PostgreSQL:
+    ```commandline
+    docker run --name psgr -p 5432:5432 --env-file .env -v pgdata:/var/lib/postgresql/data -d postgres:17-alpine
+    ```
+6. Запустите миграции:
+    ```commandline
+    alembic upgrade head
+    ```
+7. Опционально можно запустить фронтенд:
+
+   в app.js:
+    ```text
+    const host = "http://localhost:8000"
+    ```
+   в папке nginx\frontend:
+    ```commandline
+    docker container run -d --name front -p 80:80 -v .:/usr/share/nginx/html nginx
+    ```
+8. Запустите main.py
+
