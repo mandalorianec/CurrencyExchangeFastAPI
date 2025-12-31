@@ -2,38 +2,36 @@ from fastapi import status
 
 
 class BaseOwnException(Exception):
-    pass
+    def __init__(self, message: str, code: int):
+        self.message = message
+        self.code = code
 
 
 class CurrencyNotFoundError(BaseOwnException):
-    def __init__(self, message="Валюта не найдена", code=status.HTTP_404_NOT_FOUND):
-        self.message = message
-        self.code = code
+    def __init__(self, message: str = "Валюта не найдена", code: int = status.HTTP_404_NOT_FOUND):
+        super().__init__(message, code)
 
 
 class CurrencyAlreadyExistsError(BaseOwnException):
     def __init__(
-        self,
-        message="Валюта с таким кодом уже существует",
-        code=status.HTTP_409_CONFLICT,
+            self,
+            message: str = "Валюта с таким кодом уже существует",
+            code: int = status.HTTP_409_CONFLICT,
     ):
-        self.message = message
-        self.code = code
+        super().__init__(message, code)
 
 
 class ExchangeRateNotFoundError(BaseOwnException):
     def __init__(
-        self, message="Обменный курс для пары не найден", code=status.HTTP_404_NOT_FOUND
+            self, message: str = "Обменный курс для пары не найден", code: int = status.HTTP_404_NOT_FOUND
     ):
-        self.message = message
-        self.code = code
+        super().__init__(message, code)
 
 
 class ExchangeRateAlreadyExistsError(BaseOwnException):
     def __init__(
-        self,
-        message="Валютная пара с таким кодом уже существует",
-        code=status.HTTP_409_CONFLICT,
+            self,
+            message: str = "Валютная пара с таким кодом уже существует",
+            code: int = status.HTTP_409_CONFLICT,
     ):
-        self.message = message
-        self.code = code
+        super().__init__(message, code)

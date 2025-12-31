@@ -10,6 +10,7 @@ from app.dependencies import (
     _divide_codepair,
 )
 from app.exceptions import CurrencyNotFoundError
+from app.models.exchangerate import ExchangeRate
 from app.schemas import (
     ApiErrorSchema,
     ExchangeRateResponse,
@@ -25,7 +26,7 @@ exchange_rate_router = APIRouter(tags=["Операции с обменным к�
     response_model=list[ExchangeRateResponse],
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
-async def get_all_exchangerates(exchangerate_service: ExchangeRateServiceDep):
+async def get_all_exchangerates(exchangerate_service: ExchangeRateServiceDep) -> list[ExchangeRate]:
     exchangerates = await exchangerate_service.get_all_exchangerates()
     return exchangerates
 
@@ -54,7 +55,7 @@ async def add_new_exchangerate(
     exchangerate_service: ExchangeRateServiceDep,
     currency_service: CurrencyServiceDep,
     exchangerate: Annotated[ExchangeRateSchema, Form()],
-):
+) -> ExchangeRate:
     try:
         base_currency = await currency_service.get_currency_by(
             exchangerate.base_currency_code
@@ -92,7 +93,7 @@ async def add_new_exchangerate(
 async def get_exchangerate_by_codepair(
     exchangerate_service: ExchangeRateServiceDep,
     codes: Annotated[tuple[str, str], Depends(_divide_codepair)],
-):
+) -> ExchangeRate:
     base_code, target_code = codes
     exchangerate = await exchangerate_service.get_exchangerate_by_codepair(
         base_code, target_code
@@ -116,7 +117,7 @@ async def change_exchangerate_by_codepair(
     exchangerate_service: ExchangeRateServiceDep,
     codes: Annotated[tuple[str, str], Depends(_divide_codepair)],
     rate: Annotated[InputDecimal, Form()],
-):
+) -> ExchangeRate:
     base_code, target_code = codes
     new_exchangerate = await exchangerate_service.update_exchangerate(
         base_code, target_code, rate

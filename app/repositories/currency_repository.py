@@ -14,12 +14,12 @@ class CurrencyRepository:
     def __init__(self, session: Annotated[AsyncSession, Depends(get_session)]):
         self.session = session
 
-    async def get_all(self):
+    async def get_all(self) -> list[Currency]:
         currencies = await self.session.execute(select(Currency))
         result = currencies.scalars().all()
-        return result
+        return list(result)
 
-    async def get_currency_by(self, code: str):
+    async def get_currency_by(self, code: str) -> Currency:
         currency = await self.session.execute(
             select(Currency).filter(Currency.code == code)
         )
@@ -28,6 +28,6 @@ class CurrencyRepository:
             raise CurrencyNotFoundError
         return result
 
-    async def add_currency(self, currency: CurrencySchema):
+    async def add_currency(self, currency: CurrencySchema) -> None:
         db_object = Currency(name=currency.name, code=currency.code, sign=currency.sign)
         self.session.add(db_object)

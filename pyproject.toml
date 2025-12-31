@@ -23,6 +23,7 @@ package-mode = false
 pytest = "^9.0.2"
 trio = "^0.32.0"
 ruff = "^0.14.10"
+mypy = "^1.19.1"
 
 
 [build-system]
@@ -60,5 +61,19 @@ ignore = ["SIM105"]
 "alembic/env.py" = ["F401"]
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+pretty = true
+ignore_missing_imports = true
+exclude = ["alembic/"]
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
 
 

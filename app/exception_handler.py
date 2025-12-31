@@ -1,8 +1,11 @@
-from fastapi import status
+from fastapi import Request, status
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.exceptions import BaseOwnException
 
-async def validation_exception_handler(request, exc):
+
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     for error in exc.errors():
         if error["type"] == "missing":
             return JSONResponse(
@@ -49,11 +52,11 @@ async def validation_exception_handler(request, exc):
     )
 
 
-async def http_exception_handler(request, exc):
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     content = {"message": exc.detail}
     return JSONResponse(content, status_code=exc.status_code)
 
 
-async def ownexception_handler(reauest, exc):
+async def ownexception_handler(request: Request, exc: BaseOwnException) -> JSONResponse:
     content = {"message": exc.message}
     return JSONResponse(content, status_code=exc.code)

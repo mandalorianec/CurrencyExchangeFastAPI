@@ -16,7 +16,7 @@ CurrencyServiceDep = Annotated[CurrencyService, Depends(CurrencyService)]
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
-def _divide_codepair(codepair: CurrencyCodepair):
+def _divide_codepair(codepair: CurrencyCodepair) -> tuple[str, str]:
     codepair = str(codepair).strip().upper()
     base_code = codepair[:3]
     target_code = codepair[3:]

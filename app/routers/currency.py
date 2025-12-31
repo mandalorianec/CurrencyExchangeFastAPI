@@ -5,6 +5,7 @@ from fastapi_limiter.depends import RateLimiter
 
 from app.config import settings
 from app.dependencies import CurrencyServiceDep
+from app.models.currency import Currency
 from app.schemas import ApiErrorSchema, CurrencyCode, CurrencyResponse, CurrencySchema
 
 currency_router = APIRouter(tags=["Операции с валютой"])
@@ -15,7 +16,7 @@ currency_router = APIRouter(tags=["Операции с валютой"])
     response_model=list[CurrencyResponse],
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
-async def get_all_currencies(currency_service: CurrencyServiceDep):
+async def get_all_currencies(currency_service: CurrencyServiceDep) -> list[Currency]:
     currencies = await currency_service.get_all_currencies()
     return currencies
 
@@ -38,7 +39,7 @@ async def get_all_currencies(currency_service: CurrencyServiceDep):
 )
 async def add_new_currency(
     currency_service: CurrencyServiceDep, currency: Annotated[CurrencySchema, Form()]
-):
+) -> Currency:
     created_currency = await currency_service.add_currency(currency)
     return created_currency
 
@@ -55,6 +56,6 @@ async def add_new_currency(
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
-async def get_currency(currency_service: CurrencyServiceDep, code: CurrencyCode):
+async def get_currency(currency_service: CurrencyServiceDep, code: CurrencyCode) -> Currency:
     currency = await currency_service.get_currency_by(code)
     return currency

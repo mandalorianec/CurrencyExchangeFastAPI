@@ -38,9 +38,9 @@ app.add_middleware(
 )
 
 # Подключаем собственные обработчики ошибок
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
-app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(BaseOwnException, ownexception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler) # type: ignore[arg-type]
+app.add_exception_handler(HTTPException, http_exception_handler) # type: ignore[arg-type]
+app.add_exception_handler(BaseOwnException, ownexception_handler) # type: ignore[arg-type]
 
 # Подключаем свои роутеры
 app.include_router(exchange_router)
@@ -49,7 +49,7 @@ app.include_router(currency_router)
 
 
 @app.get("/", tags=["Перенаправление"])
-async def root():
+async def root() -> RedirectResponse:
     return RedirectResponse(url="/docs")
 
 

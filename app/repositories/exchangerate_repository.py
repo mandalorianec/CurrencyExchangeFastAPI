@@ -27,11 +27,11 @@ class ExchangeRateRepository:
             )
         )
         result = exchangerates.scalars().all()
-        return result
+        return list(result)
 
     async def add_exchangerate(
         self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int
-    ):
+    ) -> None:
         rate = exchangerate.rate
         db_object = ExchangeRate(
             base_currency_id=base_id, target_currency_id=target_id, rate=rate

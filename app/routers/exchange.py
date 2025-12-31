@@ -17,7 +17,6 @@ exchange_router = APIRouter(tags=["Операции с обменом"])
 
 @exchange_router.get(
     "/exchange",
-    response_model=ConvertedExchangeRateResponse,
     dependencies=[
         Depends(RateLimiter(times=settings.redis_times, seconds=settings.redis_seconds))
     ],
@@ -28,6 +27,6 @@ async def convert_amount(
     from_: Annotated[CurrencyCode, Query(alias="from")],
     to: CurrencyCode,
     amount: InputDecimal,
-):
+) -> ConvertedExchangeRateResponse:
     converted = await exchange_service.convert(from_, to, amount)
     return converted

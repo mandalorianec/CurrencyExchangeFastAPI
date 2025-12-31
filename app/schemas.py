@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Annotated, Any
+from typing import Annotated, Self
 
 from pydantic import (
     AfterValidator,
@@ -14,12 +14,12 @@ from pydantic import (
 from app.config import settings
 
 
-def _pre_validate_code(value: Any):
+def _pre_validate_code(value: str) -> str:
     value = str(value).strip().upper()
     return value
 
 
-def _after_validate_code(value: str):
+def _after_validate_code(value: str) -> str:
     if len(value) != 3:
         raise ValueError("Код валюты отсутствует в адресе")
     if not value.isalpha():
@@ -28,18 +28,18 @@ def _after_validate_code(value: str):
     return value
 
 
-def _round_decimal(value: Decimal):
+def _round_decimal(value: Decimal) -> Decimal:
     return Decimal(f"{value:.6f}")
 
 
-def _after_validate_decimal(value: Decimal):
+def _after_validate_decimal(value: Decimal) -> Decimal:
     if value <= 0:
         raise ValueError("Число должно быть больше или равно 0")
 
     if value < Decimal(10) ** -settings.db_scale:
         raise ValueError("Слишком маленькое число.")
 
-    if value.normalize().as_tuple().exponent < -settings.db_scale:
+    if int(value.normalize().as_tuple().exponent) < -settings.db_scale:
         raise ValueError(
             "Число знаков после запятой не должно превышать {settings.db_scale}"
         )
@@ -52,15 +52,12 @@ def _after_validate_decimal(value: Decimal):
     return value
 
 
-def _pre_validate_decimal(value: Decimal):
+def _pre_validate_decimal(value: Decimal) -> str:
     rate = str(value).strip().replace(",", ".")
     if rate.count(".") > 1:
         raise ValueError("Курс должен содержать не более одной точки")
     return rate
 
-
-def _format_decimal_to_str(value: Decimal):
-    return f"{value:f}".rstrip("0").rstrip(".")
 
 
 def _to_camel(field: str) -> str:
@@ -74,7 +71,7 @@ def _to_lower_camel(field: str) -> str:
     return field.lower()
 
 
-def _is_valid_codepair(codepair: str):
+def _is_valid_codepair(codepair: str) -> str:
     codepair = codepair.strip().upper()
     if len(codepair) != 6 or not codepair.isalpha():
         raise ValueError("Коды валют пары отсутствуют в адресе")
@@ -92,7 +89,7 @@ CurrencyCode = Annotated[
 RoundedDecimal = Annotated[
     Decimal,
     AfterValidator(_round_decimal),
-    PlainSerializer(_format_decimal_to_str, return_type=float),
+    PlainSerializer(lambda x: float(x), return_type=float),
 ]
 InputDecimal = Annotated[
     Decimal,
@@ -117,7 +114,7 @@ class CurrencySchema(BaseModel):
 
 
 class CurrencyResponse(CurrencySchema, IdMixin):
-    pass
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExchangeRateSchema(BaseModel):
@@ -128,7 +125,7 @@ class ExchangeRateSchema(BaseModel):
     rate: InputDecimal = Field(examples=[123.4])
 
     @model_validator(mode="after")
-    def validate_codes(self):
+    def validate_codes(self) -> Self:
         _validate_different_codes(self.base_currency_code, self.target_currency_code)
         return self
 

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     port_db: int
     postgres_db: str
 
-    @computed_field
+    @computed_field # type: ignore[prop-decorator]
     @property
     def database_url(self) -> str:
         return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.host_db}:{self.port_db}/{self.postgres_db}"
@@ -28,4 +28,4 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
+settings = Settings() # type: ignore[call-arg]
