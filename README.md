@@ -27,6 +27,8 @@ REST API для описания валют и обменных курсов. П
 - pytest
 - nginx
 - docker
+- ruffus
+- mypy
 
 ## Деплой на Linux(Ubuntu)
 
