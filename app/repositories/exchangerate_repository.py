@@ -1,5 +1,6 @@
 import logging
 from typing import Annotated
+from sqlalchemy.exc import IntegrityError
 
 from fastapi import Depends
 from sqlalchemy import select
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 
 from app.database import get_session
-from app.exceptions import ExchangeRateNotFoundError
+from app.exceptions import ExchangeRateNotFoundError, ExchangeRateAlreadyExistsError
 from app.models.currency import Currency
 from app.models.exchangerate import ExchangeRate
 from app.schemas import ExchangeRateSchema
@@ -17,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 class ExchangeRateRepository:
     def __init__(self, session: Annotated[AsyncSession, Depends(get_session)]):
-        self.session = session
+        self._session = session
 
     async def get_all(self) -> list[ExchangeRate]:
-        exchangerates = await self.session.execute(
+        exchangerates = await self._session.execute(
             select(ExchangeRate).options(
                 joinedload(ExchangeRate.base_currency),
                 joinedload(ExchangeRate.target_currency),
@@ -36,14 +37,21 @@ class ExchangeRateRepository:
         db_object = ExchangeRate(
             base_currency_id=base_id, target_currency_id=target_id, rate=rate
         )
-        self.session.add(db_object)
+        self._session.add(db_object)
+        try:
+            await self._session.commit()
+        except IntegrityError as e:
+            logger.exception("Не удалось добавить exchangerate")
+            await self._session.rollback()
+            raise ExchangeRateAlreadyExistsError from e
+
 
     async def get_exchangerate_by_codepair(
         self, base_code: str, target_code: str
     ) -> ExchangeRate:
         base_aliase = aliased(Currency)
         target_aliase = aliased(Currency)
-        exchangerate = await self.session.execute(
+        exchangerate = await self._session.execute(
             select(ExchangeRate)
             .join(base_aliase, ExchangeRate.base_currency_id == base_aliase.id)
             .join(target_aliase, ExchangeRate.target_currency_id == target_aliase.id)

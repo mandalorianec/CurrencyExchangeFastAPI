@@ -3,9 +3,8 @@ from decimal import Decimal
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.exc import IntegrityError
 
-from app.exceptions import ExchangeRateAlreadyExistsError, ExchangeRateNotFoundError
+from app.exceptions import ExchangeRateNotFoundError
 from app.models.exchangerate import ExchangeRate
 from app.repositories.currency_repository import CurrencyRepository
 from app.repositories.exchangerate_repository import ExchangeRateRepository
@@ -47,19 +46,13 @@ class ExchangeRateService:
                 message="Валютная пара отсутствует в базе данных"
             ) from e
         exchangerate.rate = rate
-        await self.exchangerate_rep.session.commit()
+        await self.exchangerate_rep._session.commit()
         return exchangerate
 
     async def add_exchangerate(
         self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int
     ) -> ExchangeRate:
         await self.exchangerate_rep.add_exchangerate(exchangerate, base_id, target_id)
-        try:
-            await self.exchangerate_rep.session.commit()
-        except IntegrityError as e:
-            logger.exception("Не удалось добавить exchangerate")
-            await self.exchangerate_rep.session.rollback()
-            raise ExchangeRateAlreadyExistsError from e
         return await self.get_exchangerate_by_codepair(
             exchangerate.base_currency_code, exchangerate.target_currency_code
         )
