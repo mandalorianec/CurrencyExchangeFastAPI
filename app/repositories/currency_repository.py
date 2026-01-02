@@ -3,12 +3,11 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.exceptions import CurrencyAlreadyExistsError
 from app.database import get_session
-from app.exceptions import CurrencyNotFoundError
+from app.exceptions import CurrencyAlreadyExistsError, CurrencyNotFoundError
 from app.models.currency import Currency
 from app.schemas import CurrencySchema
 

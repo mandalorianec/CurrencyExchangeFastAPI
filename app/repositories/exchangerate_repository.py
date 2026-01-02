@@ -1,14 +1,14 @@
 import logging
 from typing import Annotated
-from sqlalchemy.exc import IntegrityError
 
 from fastapi import Depends
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 
 from app.database import get_session
-from app.exceptions import ExchangeRateNotFoundError, ExchangeRateAlreadyExistsError
+from app.exceptions import ExchangeRateAlreadyExistsError, ExchangeRateNotFoundError
 from app.models.currency import Currency
 from app.models.exchangerate import ExchangeRate
 from app.schemas import ExchangeRateSchema

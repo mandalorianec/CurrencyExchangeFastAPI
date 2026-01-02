@@ -7,7 +7,6 @@ from app.repositories.currency_repository import CurrencyRepository
 from app.schemas import CurrencySchema
 
 
-
 class CurrencyService:
     def __init__(self, rep: Annotated[CurrencyRepository, Depends(CurrencyRepository)]):
         self.rep = rep
