@@ -23,20 +23,15 @@ class ExchangeRateRepository:
     async def get_all(self) -> list[ExchangeRate]:
         exchangerates = await self._session.execute(
             select(ExchangeRate).options(
-                joinedload(ExchangeRate.base_currency),
-                joinedload(ExchangeRate.target_currency),
+                joinedload(ExchangeRate.base_currency), joinedload(ExchangeRate.target_currency)
             )
         )
         result = exchangerates.scalars().all()
         return list(result)
 
-    async def add_exchangerate(
-        self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int
-    ) -> None:
+    async def add_exchangerate(self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int) -> None:
         rate = exchangerate.rate
-        db_object = ExchangeRate(
-            base_currency_id=base_id, target_currency_id=target_id, rate=rate
-        )
+        db_object = ExchangeRate(base_currency_id=base_id, target_currency_id=target_id, rate=rate)
         self._session.add(db_object)
         try:
             await self._session.commit()
@@ -45,10 +40,7 @@ class ExchangeRateRepository:
             await self._session.rollback()
             raise ExchangeRateAlreadyExistsError from e
 
-
-    async def get_exchangerate_by_codepair(
-        self, base_code: str, target_code: str
-    ) -> ExchangeRate:
+    async def get_exchangerate_by_codepair(self, base_code: str, target_code: str) -> ExchangeRate:
         base_aliase = aliased(Currency)
         target_aliase = aliased(Currency)
         exchangerate = await self._session.execute(

@@ -24,9 +24,7 @@ class CurrencyRepository:
         return list(result)
 
     async def get_currency_by(self, code: str) -> Currency:
-        currency = await self._session.execute(
-            select(Currency).filter(Currency.code == code)
-        )
+        currency = await self._session.execute(select(Currency).filter(Currency.code == code))
         result = currency.scalars().first()
         if result is None:
             raise CurrencyNotFoundError

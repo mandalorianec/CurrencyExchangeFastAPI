@@ -25,15 +25,10 @@ async def get_all_currencies(currency_service: CurrencyServiceDep) -> list[Curre
     "/currencies",
     response_model=CurrencyResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[
-        Depends(RateLimiter(times=settings.redis_times, seconds=settings.redis_seconds))
-    ],
+    dependencies=[Depends(RateLimiter(times=settings.redis_times, seconds=settings.redis_seconds))],
     responses={
         400: {"model": ApiErrorSchema, "description": "Отсутствует нужное поле формы"},
-        409: {
-            "model": ApiErrorSchema,
-            "description": "Валюта с таким кодом уже существует",
-        },
+        409: {"model": ApiErrorSchema, "description": "Валюта с таким кодом уже существует"},
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
@@ -48,10 +43,7 @@ async def add_new_currency(
     "/currency/{code}",
     response_model=CurrencyResponse,
     responses={
-        400: {
-            "model": ApiErrorSchema,
-            "description": "Код валюты отсутствует в адресе",
-        },
+        400: {"model": ApiErrorSchema, "description": "Код валюты отсутствует в адресе"},
         404: {"model": ApiErrorSchema, "description": "Валюта не найдена"},
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },

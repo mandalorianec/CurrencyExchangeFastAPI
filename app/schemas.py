@@ -1,15 +1,7 @@
 from decimal import Decimal
 from typing import Annotated, Self
 
-from pydantic import (
-    AfterValidator,
-    BaseModel,
-    BeforeValidator,
-    ConfigDict,
-    Field,
-    PlainSerializer,
-    model_validator,
-)
+from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer, model_validator
 
 from app.config import settings
 
@@ -40,14 +32,10 @@ def _after_validate_decimal(value: Decimal) -> Decimal:
         raise ValueError("Слишком маленькое число.")
 
     if int(value.normalize().as_tuple().exponent) < -settings.db_scale:
-        raise ValueError(
-            "Число знаков после запятой не должно превышать {settings.db_scale}"
-        )
+        raise ValueError("Число знаков после запятой не должно превышать {settings.db_scale}")
     limit = Decimal(10) ** settings.db_integer_digits
     if value >= limit:
-        raise ValueError(
-            "Слишком большое число. Максимум {settings.db_integer_digits} целых чисел"
-        )
+        raise ValueError("Слишком большое число. Максимум {settings.db_integer_digits} целых чисел")
 
     return value
 
@@ -57,7 +45,6 @@ def _pre_validate_decimal(value: Decimal) -> str:
     if rate.count(".") > 1:
         raise ValueError("Курс должен содержать не более одной точки")
     return rate
-
 
 
 def _to_camel(field: str) -> str:
@@ -83,19 +70,11 @@ def _validate_different_codes(base_code: str, target_code: str) -> None:
         raise ValueError("Нельзя добавить курс для двух одинаковых валют")
 
 
-CurrencyCode = Annotated[
-    str, BeforeValidator(_pre_validate_code), AfterValidator(_after_validate_code)
-]
+CurrencyCode = Annotated[str, BeforeValidator(_pre_validate_code), AfterValidator(_after_validate_code)]
 RoundedDecimal = Annotated[
-    Decimal,
-    AfterValidator(_round_decimal),
-    PlainSerializer(lambda x: float(x), return_type=float),
+    Decimal, AfterValidator(_round_decimal), PlainSerializer(lambda x: float(x), return_type=float)
 ]
-InputDecimal = Annotated[
-    Decimal,
-    BeforeValidator(_pre_validate_decimal),
-    AfterValidator(_after_validate_decimal),
-]
+InputDecimal = Annotated[Decimal, BeforeValidator(_pre_validate_decimal), AfterValidator(_after_validate_decimal)]
 CurrencyCodepair = Annotated[str, AfterValidator(_is_valid_codepair)]
 
 
@@ -104,9 +83,7 @@ class IdMixin(BaseModel):
 
 
 class CurrencySchema(BaseModel):
-    name: str = Field(
-        min_length=3, max_length=50, pattern=r"^[a-zA-Z ]+$", examples=["US Dollar"]
-    )
+    name: str = Field(min_length=3, max_length=50, pattern=r"^[a-zA-Z ]+$", examples=["US Dollar"])
     code: CurrencyCode = Field(examples=["USD"])
     sign: str = Field(min_length=1, max_length=10, examples=["$"])
 

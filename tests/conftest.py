@@ -21,9 +21,7 @@ def override_currency_service():
 
     # подменяем возвращаемые значения
     mock_service.get_all_currencies.return_value = CURRENCIES
-    mock_service.add_currency.return_value = CurrencyResponse(
-        id=3, name="Russian Ruble", code="RUB", sign="R"
-    )
+    mock_service.add_currency.return_value = CurrencyResponse(id=3, name="Russian Ruble", code="RUB", sign="R")
 
     app.dependency_overrides[CurrencyService] = lambda: mock_service
     yield mock_service
@@ -45,7 +43,5 @@ def disable_rate_limiter(monkeypatch):
 
 @pytest.fixture
 async def ac():
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac

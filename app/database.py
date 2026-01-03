@@ -17,6 +17,4 @@ async def get_session() -> AsyncGenerator:
 
 
 class Base(DeclarativeBase):
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )  # pk автоматически индексируется
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)  # pk автоматически индексируется

@@ -5,21 +5,14 @@ from fastapi_limiter.depends import RateLimiter
 
 from app.config import settings
 from app.dependencies import ExchangeServiceDep
-from app.schemas import (
-    ApiErrorSchema,
-    ConvertedExchangeRateResponse,
-    CurrencyCode,
-    InputDecimal,
-)
+from app.schemas import ApiErrorSchema, ConvertedExchangeRateResponse, CurrencyCode, InputDecimal
 
 exchange_router = APIRouter(tags=["Операции с обменом"])
 
 
 @exchange_router.get(
     "/exchange",
-    dependencies=[
-        Depends(RateLimiter(times=settings.redis_times, seconds=settings.redis_seconds))
-    ],
+    dependencies=[Depends(RateLimiter(times=settings.redis_times, seconds=settings.redis_seconds))],
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
 async def convert_amount(

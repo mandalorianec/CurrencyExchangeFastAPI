@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     port_db: int
     postgres_db: str
 
-    @computed_field # type: ignore[prop-decorator]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def database_url(self) -> str:
         return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.host_db}:{self.port_db}/{self.postgres_db}"
@@ -23,9 +23,7 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_times: int = 15
     redis_seconds: int = 60
-    model_config = SettingsConfigDict(
-        env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
-    )
+    model_config = SettingsConfigDict(env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"))
 
 
-settings = Settings() # type: ignore[call-arg]
+settings = Settings()  # type: ignore[call-arg]

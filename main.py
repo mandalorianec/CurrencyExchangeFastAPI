@@ -6,11 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
-from app.exception_handler import (
-    http_exception_handler,
-    ownexception_handler,
-    validation_exception_handler,
-)
+from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
 from app.exceptions import BaseOwnException
 from app.lifespan import lifespan
 from app.routers.currency import currency_router
@@ -30,17 +26,13 @@ origins = [
 ]
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
 )
 
 # Подключаем собственные обработчики ошибок
-app.add_exception_handler(RequestValidationError, validation_exception_handler) # type: ignore[arg-type]
-app.add_exception_handler(HTTPException, http_exception_handler) # type: ignore[arg-type]
-app.add_exception_handler(BaseOwnException, ownexception_handler) # type: ignore[arg-type]
+app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
+app.add_exception_handler(BaseOwnException, ownexception_handler)  # type: ignore[arg-type]
 
 # Подключаем свои роутеры
 app.include_router(exchange_router)

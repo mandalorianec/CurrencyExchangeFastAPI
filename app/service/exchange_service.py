@@ -8,14 +8,10 @@ from app.service.exchangerate_service import ExchangeRateService
 
 
 class ExchangeService:
-    def __init__(
-        self, service: Annotated[ExchangeRateService, Depends(ExchangeRateService)]
-    ):
+    def __init__(self, service: Annotated[ExchangeRateService, Depends(ExchangeRateService)]):
         self.service = service
 
-    async def convert(
-        self, from_: str, to: str, amount: Decimal
-    ) -> ConvertedExchangeRateResponse:
+    async def convert(self, from_: str, to: str, amount: Decimal) -> ConvertedExchangeRateResponse:
         converted = await self.service.get_effective_rate(from_, to)
 
         response = ConvertedExchangeRateResponse(

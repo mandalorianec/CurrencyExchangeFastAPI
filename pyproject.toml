@@ -61,6 +61,11 @@ ignore = ["SIM105"]
 "alembic/env.py" = ["F401"]
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
+[tool.ruff.format]
+quote-style = "double" # Использовать двойные кавычки
+indent-style = "space" # Отступы пробелами
+skip-magic-trailing-comma = true # не разбивать строки вертикально, если влезают
+line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.12"
