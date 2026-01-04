@@ -35,9 +35,9 @@ async def get_all_exchangerates(exchangerate_service: ExchangeRateServiceDep) ->
     },
 )
 async def add_new_exchangerate(
-    exchangerate_service: ExchangeRateServiceDep,
-    currency_service: CurrencyServiceDep,
     exchangerate: Annotated[ExchangeRateSchema, Form()],
+    currency_service: CurrencyServiceDep,
+    exchangerate_service: ExchangeRateServiceDep,
 ) -> ExchangeRate:
     try:
         base_currency = await currency_service.get_currency_by(exchangerate.base_currency_code)
@@ -63,7 +63,7 @@ async def add_new_exchangerate(
     },
 )
 async def get_exchangerate_by_codepair(
-    exchangerate_service: ExchangeRateServiceDep, codes: Annotated[tuple[str, str], Depends(_divide_codepair)]
+    codes: Annotated[tuple[str, str], Depends(_divide_codepair)], exchangerate_service: ExchangeRateServiceDep
 ) -> ExchangeRate:
     base_code, target_code = codes
     exchangerate = await exchangerate_service.get_exchangerate_by_codepair(base_code, target_code)
@@ -80,9 +80,9 @@ async def get_exchangerate_by_codepair(
     },
 )
 async def change_exchangerate_by_codepair(
-    exchangerate_service: ExchangeRateServiceDep,
     codes: Annotated[tuple[str, str], Depends(_divide_codepair)],
     rate: Annotated[InputDecimal, Form()],
+    exchangerate_service: ExchangeRateServiceDep,
 ) -> ExchangeRate:
     base_code, target_code = codes
     new_exchangerate = await exchangerate_service.update_exchangerate(base_code, target_code, rate)

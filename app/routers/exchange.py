@@ -16,10 +16,10 @@ exchange_router = APIRouter(tags=["Операции с обменом"])
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
 async def convert_amount(
-    exchange_service: ExchangeServiceDep,
     from_: Annotated[CurrencyCode, Query(alias="from")],
     to: CurrencyCode,
     amount: InputDecimal,
+    exchange_service: ExchangeServiceDep,
 ) -> ConvertedExchangeRateResponse:
     converted = await exchange_service.convert(from_, to, amount)
     return converted

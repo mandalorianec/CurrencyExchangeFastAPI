@@ -1,13 +1,10 @@
 import logging
-from typing import Annotated
 
-from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 
-from app.database import get_session
 from app.exceptions import ExchangeRateAlreadyExistsError, ExchangeRateNotFoundError
 from app.models.currency import Currency
 from app.models.exchangerate import ExchangeRate
@@ -17,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExchangeRateRepository:
-    def __init__(self, session: Annotated[AsyncSession, Depends(get_session)]):
+    def __init__(self, session: AsyncSession):
         self._session = session
 
     async def get_all(self) -> list[ExchangeRate]:

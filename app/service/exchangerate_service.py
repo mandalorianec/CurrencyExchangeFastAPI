@@ -1,8 +1,5 @@
 import logging
 from decimal import Decimal
-from typing import Annotated
-
-from fastapi import Depends
 
 from app.exceptions import ExchangeRateNotFoundError
 from app.models.exchangerate import ExchangeRate
@@ -14,11 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExchangeRateService:
-    def __init__(
-        self,
-        exchangerate_rep: Annotated[ExchangeRateRepository, Depends(ExchangeRateRepository)],
-        currency_rep: Annotated[CurrencyRepository, Depends(CurrencyRepository)],
-    ):
+    def __init__(self, exchangerate_rep: ExchangeRateRepository, currency_rep: CurrencyRepository):
         self.exchangerate_rep = exchangerate_rep
         self.currency_rep = currency_rep
 

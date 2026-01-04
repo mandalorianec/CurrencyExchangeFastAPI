@@ -1,14 +1,10 @@
-from typing import Annotated
-
-from fastapi import Depends
-
 from app.models.currency import Currency
 from app.repositories.currency_repository import CurrencyRepository
 from app.schemas import CurrencySchema
 
 
 class CurrencyService:
-    def __init__(self, rep: Annotated[CurrencyRepository, Depends(CurrencyRepository)]):
+    def __init__(self, rep: CurrencyRepository):
         self.rep = rep
 
     async def get_all_currencies(self) -> list[Currency]:

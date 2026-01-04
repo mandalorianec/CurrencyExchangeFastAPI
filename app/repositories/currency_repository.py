@@ -1,12 +1,9 @@
 import logging
-from typing import Annotated
 
-from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_session
 from app.exceptions import CurrencyAlreadyExistsError, CurrencyNotFoundError
 from app.models.currency import Currency
 from app.schemas import CurrencySchema
@@ -15,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class CurrencyRepository:
-    def __init__(self, session: Annotated[AsyncSession, Depends(get_session)]):
+    def __init__(self, session: AsyncSession):
         self._session = session
 
     async def get_all(self) -> list[Currency]:

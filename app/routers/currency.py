@@ -33,7 +33,7 @@ async def get_all_currencies(currency_service: CurrencyServiceDep) -> list[Curre
     },
 )
 async def add_new_currency(
-    currency_service: CurrencyServiceDep, currency: Annotated[CurrencySchema, Form()]
+    currency: Annotated[CurrencySchema, Form()], currency_service: CurrencyServiceDep
 ) -> Currency:
     created_currency = await currency_service.add_currency(currency)
     return created_currency
@@ -48,6 +48,6 @@ async def add_new_currency(
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
-async def get_currency(currency_service: CurrencyServiceDep, code: CurrencyCode) -> Currency:
+async def get_currency(code: CurrencyCode, currency_service: CurrencyServiceDep) -> Currency:
     currency = await currency_service.get_currency_by(code)
     return currency

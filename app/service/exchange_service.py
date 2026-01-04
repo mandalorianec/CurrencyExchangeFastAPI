@@ -1,14 +1,11 @@
 from decimal import Decimal
-from typing import Annotated
-
-from fastapi import Depends
 
 from app.schemas import ConvertedExchangeRateResponse
 from app.service.exchangerate_service import ExchangeRateService
 
 
 class ExchangeService:
-    def __init__(self, service: Annotated[ExchangeRateService, Depends(ExchangeRateService)]):
+    def __init__(self, service: ExchangeRateService):
         self.service = service
 
     async def convert(self, from_: str, to: str, amount: Decimal) -> ConvertedExchangeRateResponse:
