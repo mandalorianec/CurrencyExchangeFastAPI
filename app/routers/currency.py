@@ -1,12 +1,13 @@
 from typing import Annotated
 
+from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Depends, Form, status
 from fastapi_limiter.depends import RateLimiter
 
 from app.config import settings
-from app.dependencies import CurrencyServiceDep
 from app.models.currency import Currency
 from app.schemas import ApiErrorSchema, CurrencyCode, CurrencyResponse, CurrencySchema
+from app.service.currency_service import CurrencyService
 
 currency_router = APIRouter(tags=["Операции с валютой"])
 
@@ -16,7 +17,8 @@ currency_router = APIRouter(tags=["Операции с валютой"])
     response_model=list[CurrencyResponse],
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
-async def get_all_currencies(currency_service: CurrencyServiceDep) -> list[Currency]:
+@inject
+async def get_all_currencies(currency_service: FromDishka[CurrencyService]) -> list[Currency]:
     currencies = await currency_service.get_all_currencies()
     return currencies
 
@@ -32,8 +34,9 @@ async def get_all_currencies(currency_service: CurrencyServiceDep) -> list[Curre
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
+@inject
 async def add_new_currency(
-    currency: Annotated[CurrencySchema, Form()], currency_service: CurrencyServiceDep
+    currency: Annotated[CurrencySchema, Form()], currency_service: FromDishka[CurrencyService]
 ) -> Currency:
     created_currency = await currency_service.add_currency(currency)
     return created_currency
@@ -48,6 +51,7 @@ async def add_new_currency(
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
-async def get_currency(code: CurrencyCode, currency_service: CurrencyServiceDep) -> Currency:
+@inject
+async def get_currency(code: CurrencyCode, currency_service: FromDishka[CurrencyService]) -> Currency:
     currency = await currency_service.get_currency_by(code)
     return currency

@@ -1,13 +1,16 @@
 from typing import Annotated
 
+from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi_limiter.depends import RateLimiter
 
 from app.config import settings
-from app.dependencies import CurrencyServiceDep, ExchangeRateServiceDep, _divide_codepair
+from app.dependencies import _divide_codepair
 from app.exceptions import CurrencyNotFoundError
 from app.models.exchangerate import ExchangeRate
 from app.schemas import ApiErrorSchema, ExchangeRateResponse, ExchangeRateSchema, InputDecimal
+from app.service.currency_service import CurrencyService
+from app.service.exchangerate_service import ExchangeRateService
 
 exchange_rate_router = APIRouter(tags=["Операции с обменным курсами"])
 
@@ -17,7 +20,8 @@ exchange_rate_router = APIRouter(tags=["Операции с обменным к�
     response_model=list[ExchangeRateResponse],
     responses={500: {"model": ApiErrorSchema, "description": "База данных недоступна"}},
 )
-async def get_all_exchangerates(exchangerate_service: ExchangeRateServiceDep) -> list[ExchangeRate]:
+@inject
+async def get_all_exchangerates(exchangerate_service: FromDishka[ExchangeRateService]) -> list[ExchangeRate]:
     exchangerates = await exchangerate_service.get_all_exchangerates()
     return exchangerates
 
@@ -34,10 +38,11 @@ async def get_all_exchangerates(exchangerate_service: ExchangeRateServiceDep) ->
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
+@inject
 async def add_new_exchangerate(
     exchangerate: Annotated[ExchangeRateSchema, Form()],
-    currency_service: CurrencyServiceDep,
-    exchangerate_service: ExchangeRateServiceDep,
+    currency_service: FromDishka[CurrencyService],
+    exchangerate_service: FromDishka[ExchangeRateService],
 ) -> ExchangeRate:
     try:
         base_currency = await currency_service.get_currency_by(exchangerate.base_currency_code)
@@ -62,8 +67,9 @@ async def add_new_exchangerate(
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
+@inject
 async def get_exchangerate_by_codepair(
-    codes: Annotated[tuple[str, str], Depends(_divide_codepair)], exchangerate_service: ExchangeRateServiceDep
+    codes: Annotated[tuple[str, str], Depends(_divide_codepair)], exchangerate_service: FromDishka[ExchangeRateService]
 ) -> ExchangeRate:
     base_code, target_code = codes
     exchangerate = await exchangerate_service.get_exchangerate_by_codepair(base_code, target_code)
@@ -79,10 +85,11 @@ async def get_exchangerate_by_codepair(
         500: {"model": ApiErrorSchema, "description": "База данных недоступна"},
     },
 )
+@inject
 async def change_exchangerate_by_codepair(
     codes: Annotated[tuple[str, str], Depends(_divide_codepair)],
     rate: Annotated[InputDecimal, Form()],
-    exchangerate_service: ExchangeRateServiceDep,
+    exchangerate_service: FromDishka[ExchangeRateService],
 ) -> ExchangeRate:
     base_code, target_code = codes
     new_exchangerate = await exchangerate_service.update_exchangerate(base_code, target_code, rate)

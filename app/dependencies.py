@@ -1,9 +1,9 @@
-from typing import Annotated
+from collections.abc import AsyncIterable
 
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from dishka import Provider, Scope, provide
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
-from app.database import get_session
+from app.config import settings
 from app.repositories.currency_repository import CurrencyRepository
 from app.repositories.exchangerate_repository import ExchangeRateRepository
 from app.schemas import CurrencyCodepair, _validate_different_codes
@@ -22,31 +22,38 @@ def _divide_codepair(codepair: CurrencyCodepair) -> tuple[str, str]:
     return base_code, target_code
 
 
-def get_currency_repository(session: Annotated[AsyncSession, Depends(get_session)]) -> CurrencyRepository:
-    return CurrencyRepository(session)
+class MyProvider(Provider):
+    @provide(scope=Scope.APP)
+    def get_engine(self) -> AsyncEngine:
+        return create_async_engine(settings.database_url)
 
+    @provide(scope=Scope.APP)
+    async def get_async_sessionmaker(self, engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+        return async_sessionmaker(engine, expire_on_commit=False)
 
-def get_currency_service(rep: Annotated[CurrencyRepository, Depends(get_currency_repository)]) -> CurrencyService:
-    return CurrencyService(rep)
+    @provide(scope=Scope.REQUEST)
+    async def get_session(self, sessionmaker: async_sessionmaker[AsyncSession]) -> AsyncIterable[AsyncSession]:
+        async with sessionmaker() as new_session:
+            yield new_session
 
+    @provide(scope=Scope.REQUEST)
+    def get_currency_repository(self, session: AsyncSession) -> CurrencyRepository:
+        return CurrencyRepository(session)
 
-def get_exchangerate_repository(session: Annotated[AsyncSession, Depends(get_session)]) -> ExchangeRateRepository:
-    return ExchangeRateRepository(session)
+    @provide(scope=Scope.REQUEST)
+    def get_currency_service(self, rep: CurrencyRepository) -> CurrencyService:
+        return CurrencyService(rep)
 
+    @provide(scope=Scope.REQUEST)
+    def get_exchangerate_repository(self, session: AsyncSession) -> ExchangeRateRepository:
+        return ExchangeRateRepository(session)
 
-def get_exchangerate_service(
-    exchangerate_rep: Annotated[ExchangeRateRepository, Depends(get_exchangerate_repository)],
-    currency_rep: Annotated[CurrencyRepository, Depends(get_currency_repository)],
-) -> ExchangeRateService:
-    return ExchangeRateService(exchangerate_rep=exchangerate_rep, currency_rep=currency_rep)
+    @provide(scope=Scope.REQUEST)
+    def get_exchangerate_service(
+        self, exchangerate_rep: ExchangeRateRepository, currency_rep: CurrencyRepository
+    ) -> ExchangeRateService:
+        return ExchangeRateService(exchangerate_rep=exchangerate_rep, currency_rep=currency_rep)
 
-
-def get_exchange_service(
-    exchangerate_service: Annotated[ExchangeRateService, Depends(get_exchangerate_service)],
-) -> ExchangeService:
-    return ExchangeService(exchangerate_service)
-
-
-ExchangeRateServiceDep = Annotated[ExchangeRateService, Depends(get_exchangerate_service)]
-ExchangeServiceDep = Annotated[ExchangeService, Depends(get_exchange_service)]
-CurrencyServiceDep = Annotated[CurrencyService, Depends(get_currency_service)]
+    @provide(scope=Scope.REQUEST)
+    def get_exchange_service(self, exchangerate_service: ExchangeRateService) -> ExchangeService:
+        return ExchangeService(exchangerate_service)
