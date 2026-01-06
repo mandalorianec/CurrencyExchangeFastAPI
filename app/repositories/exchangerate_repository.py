@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -26,6 +27,16 @@ class ExchangeRateRepository:
         result = exchangerates.scalars().all()
         return list(result)
 
+    async def update_exchangerate(self, base_code: str, target_code: str, rate: Decimal) -> None:
+        try:
+            exchangerate = await self.get_exchangerate_by_codepair(base_code, target_code)
+            exchangerate.rate = rate
+            await self._session.commit()
+        except ExchangeRateNotFoundError as e:
+            logger.info("Валютная пара отсутствует в базе данных")
+            await self._session.rollback()
+            raise ExchangeRateNotFoundError(message="Валютная пара отсутствует в базе данных") from e
+
     async def add_exchangerate(self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int) -> None:
         rate = exchangerate.rate
         db_object = ExchangeRate(base_currency_id=base_id, target_currency_id=target_id, rate=rate)
@@ -33,22 +44,22 @@ class ExchangeRateRepository:
         try:
             await self._session.commit()
         except IntegrityError as e:
-            logger.exception("Не удалось добавить exchangerate")
+            logger.exception("Не удалось добавить exchangerate. Обменный курс уже существует")
             await self._session.rollback()
             raise ExchangeRateAlreadyExistsError from e
 
     async def get_exchangerate_by_codepair(self, base_code: str, target_code: str) -> ExchangeRate:
-        base_aliase = aliased(Currency)
-        target_aliase = aliased(Currency)
+        base_alias = aliased(Currency)
+        target_alias = aliased(Currency)
         exchangerate = await self._session.execute(
             select(ExchangeRate)
-            .join(base_aliase, ExchangeRate.base_currency_id == base_aliase.id)
-            .join(target_aliase, ExchangeRate.target_currency_id == target_aliase.id)
+            .join(base_alias, ExchangeRate.base_currency_id == base_alias.id)
+            .join(target_alias, ExchangeRate.target_currency_id == target_alias.id)
             .options(
-                contains_eager(ExchangeRate.base_currency, alias=base_aliase),
-                contains_eager(ExchangeRate.target_currency, alias=target_aliase),
+                contains_eager(ExchangeRate.base_currency, alias=base_alias),
+                contains_eager(ExchangeRate.target_currency, alias=target_alias),
             )
-            .filter(base_aliase.code == base_code, target_aliase.code == target_code)
+            .filter(base_alias.code == base_code, target_alias.code == target_code)
         )
         result = exchangerate.scalars().first()
         if result is None:

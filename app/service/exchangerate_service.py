@@ -23,14 +23,15 @@ class ExchangeRateService:
         return exchangerate
 
     async def update_exchangerate(self, base_code: str, target_code: str, rate: Decimal) -> ExchangeRate:
-        try:
-            exchangerate = await self.exchangerate_rep.get_exchangerate_by_codepair(base_code, target_code)
-        except ExchangeRateNotFoundError as e:
-            logger.info("Валютная пара отсутствует в базе данных")
-            raise ExchangeRateNotFoundError(message="Валютная пара отсутствует в базе данных") from e
-        exchangerate.rate = rate
-        await self.exchangerate_rep._session.commit()
-        return exchangerate
+        # try:
+        #     exchangerate = await self.exchangerate_rep.get_exchangerate_by_codepair(base_code, target_code)
+        # except ExchangeRateNotFoundError as e:
+        #     logger.info("Валютная пара отсутствует в базе данных")
+        #     raise ExchangeRateNotFoundError(message="Валютная пара отсутствует в базе данных") from e
+        # exchangerate.rate = rate
+        # await self.exchangerate_rep._session.commit()
+        await self.exchangerate_rep.update_exchangerate(base_code, target_code, rate)
+        return await self.get_exchangerate_by_codepair(base_code, target_code)
 
     async def add_exchangerate(self, exchangerate: ExchangeRateSchema, base_id: int, target_id: int) -> ExchangeRate:
         await self.exchangerate_rep.add_exchangerate(exchangerate, base_id, target_id)
