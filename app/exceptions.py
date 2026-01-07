@@ -27,4 +27,3 @@ class ExchangeRateAlreadyExistsError(BaseOwnException):
         self, message: str = "Валютная пара с таким кодом уже существует", code: int = status.HTTP_409_CONFLICT
     ):
         super().__init__(message, code)
-
