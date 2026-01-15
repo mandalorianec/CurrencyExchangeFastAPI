@@ -25,6 +25,8 @@ pytest = "^9.0.2"
 trio = "^0.32.0"
 ruff = "^0.14.10"
 mypy = "^1.19.1"
+aiosqlite = "^0.22.1"
+pytest-asyncio = "^1.3.0"
 
 
 [build-system]

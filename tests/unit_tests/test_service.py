@@ -1,7 +1,10 @@
-# import pytest
-# from app.service.exchangerate_service import ExchangeRateService
-#
-# @pytest.mark.parametrize("from_, to, res",
-#                          [("USD", "RUB", 78), ("EUR", "RUB", 87)])
-# def test_get_effective_rate_success(from_, to, res, exchangerate_rep_mock, currency_rep_mock):
-#     service = ExchangeRateService()
+import pytest
+from httpx import AsyncClient
+
+
+@pytest.mark.anyio
+async def test_post_currency(client: AsyncClient):
+    form_data = {"name": "Russian Ruble", "code": "RUB", "sign": "R"}
+    response = await client.post("/currencies", data=form_data)
+    assert response.status_code == 201
+    assert response.json()["code"] == "RUB"
