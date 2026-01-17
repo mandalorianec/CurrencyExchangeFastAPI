@@ -44,12 +44,9 @@ class MockMyProvider(MyProvider):
 
 
 @pytest.fixture
-async def client(container, test_app):
-    setup_dishka(container, test_app)
+async def client(test_app, container):
     client = AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test")
     yield client
-    await container.close()
-
 
 @pytest.fixture
 async def exchange_service(container, test_app):
