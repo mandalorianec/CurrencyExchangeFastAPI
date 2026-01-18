@@ -43,14 +43,13 @@ class MockMyProvider(MyProvider):
         return create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def client(test_app, container):
     client = AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test")
     yield client
 
 @pytest.fixture
 async def exchange_service(container, test_app):
-    setup_dishka(container, test_app)
     async with container() as mini_container:
         service = await mini_container.get(ExchangeService)
         yield service
