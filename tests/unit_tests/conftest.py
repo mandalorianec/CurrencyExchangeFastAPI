@@ -12,8 +12,10 @@ from app.database import Base
 from app.dependencies import MyProvider
 from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
 from app.exceptions import BaseOwnException
+from app.repositories.currency_repository import CurrencyRepository
 from app.routers.currency import currency_router
 from app.routers.exchangerate import exchange_rate_router
+from app.schemas import CurrencySchema
 from app.service.exchange_service import ExchangeService
 from app.routers.exchange import exchange_router
 
@@ -67,6 +69,13 @@ async def container(test_app):
         await conn.run_sync(Base.metadata.drop_all)
     await mock_container.close()
 
+@pytest.fixture
+async def usd_currency(container):
+    async with container() as mini_container:
+        rep = await mini_container.get(CurrencyRepository)
+        usd = CurrencySchema(name="US Dollar", code="USD", sign="$")
+        await rep.add_currency(usd)
+        yield usd
 
 @pytest.fixture(autouse=True)
 def disable_rate_limiter(monkeypatch):

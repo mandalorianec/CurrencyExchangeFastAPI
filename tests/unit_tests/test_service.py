@@ -25,3 +25,10 @@ async def test_convert(exchange_service: ExchangeService, from_: str, to: str, a
     await client.post("/exchangeRates", data=form_data)
     response = (await exchange_service.convert(from_, to, amount)).converted_amount
     assert response == Decimal('552')
+
+
+@pytest.mark.anyio
+async def test_get_currency(usd_currency, client):
+    response = await client.get(f"/currency/{usd_currency.code}")
+    assert response.status_code == 200
+    assert response.json()["code"] == usd_currency.code
