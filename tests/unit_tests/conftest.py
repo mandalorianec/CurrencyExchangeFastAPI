@@ -1,8 +1,8 @@
 import pytest
 from dishka import Scope, make_async_container, provide
 from dishka.integrations.fastapi import setup_dishka
-from fastapi import Request, Response, FastAPI
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi import FastAPI, Request, Response
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi_limiter.depends import RateLimiter
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import StaticPool
@@ -14,18 +14,18 @@ from app.exception_handler import http_exception_handler, ownexception_handler, 
 from app.exceptions import BaseOwnException
 from app.repositories.currency_repository import CurrencyRepository
 from app.routers.currency import currency_router
+from app.routers.exchange import exchange_router
 from app.routers.exchangerate import exchange_rate_router
 from app.schemas import CurrencySchema
 from app.service.exchange_service import ExchangeService
-from app.routers.exchange import exchange_router
 
 
 def create_app() -> FastAPI:
     app = FastAPI()
     # Подключаем собственные обработчики ошибок
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(HTTPException, http_exception_handler)
-    app.add_exception_handler(BaseOwnException, ownexception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(BaseOwnException, ownexception_handler)  # type: ignore[arg-type]
 
     # Подключаем свои роутеры
     app.include_router(exchange_router)
@@ -50,6 +50,7 @@ async def client(test_app, container):
     client = AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test")
     yield client
 
+
 @pytest.fixture
 async def exchange_service(container, test_app):
     async with container() as mini_container:
@@ -69,6 +70,7 @@ async def container(test_app):
         await conn.run_sync(Base.metadata.drop_all)
     await mock_container.close()
 
+
 @pytest.fixture
 async def usd_currency(container):
     async with container() as mini_container:
@@ -76,6 +78,7 @@ async def usd_currency(container):
         usd = CurrencySchema(name="US Dollar", code="USD", sign="$")
         await rep.add_currency(usd)
         yield usd
+
 
 @pytest.fixture(autouse=True)
 def disable_rate_limiter(monkeypatch):
