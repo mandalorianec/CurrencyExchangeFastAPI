@@ -13,10 +13,11 @@ from app.dependencies import MyProvider
 from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
 from app.exceptions import BaseOwnException
 from app.repositories.currency_repository import CurrencyRepository
+from app.repositories.exchangerate_repository import ExchangeRateRepository
 from app.routers.currency import currency_router
 from app.routers.exchange import exchange_router
 from app.routers.exchangerate import exchange_rate_router
-from app.schemas import CurrencySchema
+from app.schemas import CurrencySchema, ExchangeRateSchema
 from app.service.exchange_service import ExchangeService
 
 
@@ -77,7 +78,27 @@ async def usd_currency(container):
         rep = await mini_container.get(CurrencyRepository)
         usd = CurrencySchema(name="US Dollar", code="USD", sign="$")
         await rep.add_currency(usd)
+        usd = await rep.get_currency_by("USD")
         yield usd
+
+
+@pytest.fixture
+async def rub_currency(container):
+    async with container() as mini_container:
+        rep = await mini_container.get(CurrencyRepository)
+        rub = CurrencySchema(name="Russian Ruble", code="RUB", sign="R")
+        await rep.add_currency(rub)
+        rub = await rep.get_currency_by("RUB")
+        yield rub
+
+
+@pytest.fixture
+async def exchange_rate(container, usd_currency, rub_currency):
+    async with container() as mini_container:
+        rep = await mini_container.get(ExchangeRateRepository)
+        rate = ExchangeRateSchema(baseCurrencyCode="USD", targetCurrencyCode="RUB", rate=77.75)
+        await rep.add_exchangerate(rate, usd_currency.id, rub_currency.id)
+        yield rate
 
 
 @pytest.fixture(autouse=True)
