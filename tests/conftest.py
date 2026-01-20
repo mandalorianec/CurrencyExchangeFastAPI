@@ -59,6 +59,7 @@ async def exchange_service(container, test_app):
         service = await mini_container.get(ExchangeService)
         yield service
 
+
 @pytest.fixture
 async def currency_service(container, test_app):
     async with container() as mini_container:
