@@ -2,7 +2,6 @@ import pytest
 from dishka import Scope, make_async_container, provide
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI, Request, Response
-from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi_limiter.depends import RateLimiter
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import StaticPool
@@ -10,30 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.database import Base
 from app.dependencies import MyProvider
-from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
-from app.exceptions import BaseOwnException
 from app.repositories.currency_repository import CurrencyRepository
 from app.repositories.exchangerate_repository import ExchangeRateRepository
-from app.routers.currency import currency_router
-from app.routers.exchange import exchange_router
-from app.routers.exchangerate import exchange_rate_router
 from app.schemas import CurrencySchema, ExchangeRateSchema
 from app.service.currency_service import CurrencyService
 from app.service.exchange_service import ExchangeService
-
-
-def create_app() -> FastAPI:
-    app = FastAPI()
-    # Подключаем собственные обработчики ошибок
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
-    app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
-    app.add_exception_handler(BaseOwnException, ownexception_handler)  # type: ignore[arg-type]
-
-    # Подключаем свои роутеры
-    app.include_router(exchange_router)
-    app.include_router(exchange_rate_router)
-    app.include_router(currency_router)
-    return app
+from main import create_app
 
 
 @pytest.fixture
