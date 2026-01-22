@@ -4,10 +4,10 @@ import uvicorn
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
 
-from app.dependencies import MyProvider, create_app
+from app.app_factory import create_app
+from app.dependencies import MyProvider
 
 logger = logging.getLogger(__name__)
-
 
 app = create_app()
 container = make_async_container(MyProvider())

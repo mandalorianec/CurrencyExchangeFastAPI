@@ -1,0 +1,42 @@
+from fastapi import FastAPI
+from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+
+from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
+from app.exceptions import BaseOwnException
+from app.lifespan import lifespan
+from app.routers.currency import currency_router
+from app.routers.exchange import exchange_router
+from app.routers.exchangerate import exchange_rate_router
+
+
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
+    origins = [
+        "http://localhost",
+        "http://localhost:80",
+        "http://localhost:8080",
+        "http://127.0.0.1",
+        "http://127.0.0.1:80",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+    )
+
+    # Подключаем собственные обработчики ошибок
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(BaseOwnException, ownexception_handler)  # type: ignore[arg-type]
+
+    # Подключаем свои роутеры
+    app.include_router(exchange_router)
+    app.include_router(exchange_rate_router)
+    app.include_router(currency_router)
+
+    @app.get("/", tags=["Перенаправление"])
+    async def root() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
+
+    return app

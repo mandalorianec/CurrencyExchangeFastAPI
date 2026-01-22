@@ -7,6 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
+from app.app_factory import create_app
 from app.database import Base
 from app.dependencies import MyProvider
 from app.repositories.currency_repository import CurrencyRepository
@@ -14,7 +15,6 @@ from app.repositories.exchangerate_repository import ExchangeRateRepository
 from app.schemas import CurrencySchema, ExchangeRateSchema
 from app.service.currency_service import CurrencyService
 from app.service.exchange_service import ExchangeService
-from main import create_app
 
 
 @pytest.fixture
