@@ -1,8 +1,11 @@
+from dishka import make_async_container
+from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
+from app.dependencies import MyProvider
 from app.exception_handler import http_exception_handler, ownexception_handler, validation_exception_handler
 from app.exceptions import BaseOwnException
 from app.lifespan import lifespan
@@ -13,6 +16,9 @@ from app.routers.exchangerate import exchange_rate_router
 
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+
+    container = make_async_container(MyProvider())
+    setup_dishka(container, app)
     origins = [
         "http://localhost",
         "http://localhost:80",
